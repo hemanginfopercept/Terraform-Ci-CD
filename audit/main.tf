@@ -7,60 +7,10 @@ provider "azurerm" {
 }
 
 resource "azurerm_resource_group" "example" {
-  name     = "example-resources"
+  name     = "example-resources-pipeline"
   location = "West Europe"
 }
 
-resource "azurerm_network_security_group" "example" {
-  name                = "acceptanceTestSecurityGroup1"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
-  tags = {
-    Name = "infopercept"
-  }
-}
-
-resource "azurerm_network_security_rule" "example" {
-  name                        = "test123"
-  priority                    = 100
-  direction                   = "Outbound"
-  access                      = "Allow"
-  protocol                    = "Tcp"
-  source_port_range           = "*"
-  destination_port_range      = "*"
-  source_address_prefix       = "*"
-  destination_address_prefix  = "*"
-  resource_group_name         = azurerm_resource_group.example.name
-  network_security_group_name = azurerm_network_security_group.example.name
-}
-
-resource "azurerm_monitor_action_group" "main" {
-  name                = "example-actiongroup"
-  resource_group_name = azurerm_resource_group.example.name
-  short_name          = "p0action"
-}
-
-## Resource Monitior activity log alert
-resource "azurerm_monitor_activity_log_alert" "main" {
-  name                = "example-activitylogalert"
-  resource_group_name = azurerm_resource_group.example.name
-  scopes              = [azurerm_resource_group.example.id]
-  description         = "This alert will monitor a specific storage account updates."
-
-  criteria {
-    resource_id    = azurerm_storage_account.example.id
-    operation_name = "Microsoft.Storage/storageAccounts/write"
-    category       = "Recommendation"
-  }
-
-  action {
-    action_group_id = azurerm_monitor_action_group.main.id
-
-    webhook_properties = {
-      from = "terraform"
-    }
-  }
-}
 resource "azurerm_storage_account" "example" {
   name                     = "kemsyssa"
   resource_group_name      = azurerm_resource_group.example.name
